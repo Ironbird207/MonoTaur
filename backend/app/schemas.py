@@ -1,0 +1,82 @@
+from __future__ import annotations
+
+from typing import List, Optional
+from uuid import UUID, uuid4
+
+from pydantic import BaseModel, Field, IPvAnyAddress, validator
+
+
+class DeviceBase(BaseModel):
+    name: str
+    ip_address: IPvAnyAddress
+    type: str = Field(default="unknown", description="device category")
+    snmp_profile: Optional[dict] = Field(default=None, description="SNMP credentials and version info")
+
+
+class DeviceCreate(DeviceBase):
+    pass
+
+
+class DeviceUpdate(BaseModel):
+    name: Optional[str] = None
+    ip_address: Optional[IPvAnyAddress] = None
+    type: Optional[str] = None
+    snmp_profile: Optional[dict] = None
+
+
+class Device(DeviceBase):
+    id: UUID = Field(default_factory=uuid4)
+
+
+class LayoutDevice(BaseModel):
+    device_id: UUID
+    x: float = Field(ge=0.0, le=1.0)
+    y: float = Field(ge=0.0, le=1.0)
+
+
+class LayoutBase(BaseModel):
+    name: str
+    background: str = Field(default="osm", description="uploaded image path or 'osm'")
+    devices: List[LayoutDevice] = Field(default_factory=list)
+
+
+class LayoutCreate(LayoutBase):
+    pass
+
+
+class LayoutUpdate(BaseModel):
+    name: Optional[str] = None
+    background: Optional[str] = None
+    devices: Optional[List[LayoutDevice]] = None
+
+
+class Layout(LayoutBase):
+    id: UUID = Field(default_factory=uuid4)
+
+
+class LinkBase(BaseModel):
+    source_device_id: UUID
+    target_device_id: UUID
+    source_ifindex: Optional[int] = Field(default=None, ge=0)
+    target_ifindex: Optional[int] = Field(default=None, ge=0)
+    label: Optional[str] = None
+
+    @validator("target_device_id")
+    def validate_distinct_devices(cls, v, values):
+        if "source_device_id" in values and v == values["source_device_id"]:
+            raise ValueError("link endpoints must be different devices")
+        return v
+
+
+class LinkCreate(LinkBase):
+    pass
+
+
+class LinkUpdate(BaseModel):
+    source_ifindex: Optional[int] = Field(default=None, ge=0)
+    target_ifindex: Optional[int] = Field(default=None, ge=0)
+    label: Optional[str] = None
+
+
+class Link(LinkBase):
+    id: UUID = Field(default_factory=uuid4)
