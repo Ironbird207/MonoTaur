@@ -82,6 +82,8 @@ def list_links():
 
 @app.post("/links", response_model=schemas.Link, status_code=201)
 def create_link(payload: schemas.LinkCreate):
+    if payload.source_device_id == payload.target_device_id:
+        raise HTTPException(status_code=400, detail="link endpoints must be different devices")
     for device_id in (payload.source_device_id, payload.target_device_id):
         if device_id not in store.devices:
             raise HTTPException(status_code=400, detail="link endpoints must reference existing devices")

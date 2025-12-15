@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, IPvAnyAddress, validator
+from pydantic import BaseModel, Field, IPvAnyAddress
 
 
 class DeviceBase(BaseModel):
@@ -60,12 +60,6 @@ class LinkBase(BaseModel):
     source_ifindex: Optional[int] = Field(default=None, ge=0)
     target_ifindex: Optional[int] = Field(default=None, ge=0)
     label: Optional[str] = None
-
-    @validator("target_device_id")
-    def validate_distinct_devices(cls, v, values):
-        if "source_device_id" in values and v == values["source_device_id"]:
-            raise ValueError("link endpoints must be different devices")
-        return v
 
 
 class LinkCreate(LinkBase):
