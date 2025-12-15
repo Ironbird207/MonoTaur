@@ -20,6 +20,13 @@ This directory contains a lightweight FastAPI application that sketches the APIs
 3. Explore the interactive docs at http://localhost:8000/docs
 
 ## Tests
+You can run the backend tests with the helper script, which will create a local virtual environment, install dependencies, and
+invoke pytest:
+
 ```bash
-python -m pytest backend/tests
+./scripts/run_backend_tests.sh
 ```
+
+> If your environment uses an HTTP(S) proxy or blocks outbound network traffic, dependency installation may fail. Configure
+> pip with your proxy (`pip install --proxy https://proxy:port -r backend/requirements.txt`) or pre-download wheels before
+> running the script.
