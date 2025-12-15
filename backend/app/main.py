@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import schemas
+from .monitoring import run_check
 from .storage import InMemoryStore
 
 
@@ -100,6 +101,48 @@ def update_link(link_id: UUID, payload: schemas.LinkUpdate):
 @app.delete("/links/{link_id}", status_code=204)
 def delete_link(link_id: UUID):
     store.delete_link(link_id)
+
+
+# Checks
+@app.get("/checks", response_model=List[schemas.Check])
+def list_checks():
+    return store.list_checks()
+
+
+@app.post("/checks", response_model=schemas.Check, status_code=201)
+def create_check(payload: schemas.CheckCreate):
+    if payload.device_id not in store.devices:
+        raise HTTPException(status_code=400, detail="device_id must reference an existing device")
+    return store.create_check(payload)
+
+
+@app.get("/checks/{check_id}", response_model=schemas.Check)
+def get_check(check_id: UUID):
+    if check_id not in store.checks:
+        raise HTTPException(status_code=404, detail="check not found")
+    return store.get_check(check_id)
+
+
+@app.patch("/checks/{check_id}", response_model=schemas.Check)
+def update_check(check_id: UUID, payload: schemas.CheckUpdate):
+    if check_id not in store.checks:
+        raise HTTPException(status_code=404, detail="check not found")
+    return store.update_check(check_id, payload)
+
+
+@app.delete("/checks/{check_id}", status_code=204)
+def delete_check(check_id: UUID):
+    store.delete_check(check_id)
+
+
+@app.post("/checks/{check_id}/run", response_model=schemas.CheckResult)
+async def execute_check(check_id: UUID):
+    if check_id not in store.checks:
+        raise HTTPException(status_code=404, detail="check not found")
+    check = store.get_check(check_id)
+    result = await run_check(check)
+    store.record_check_result(check_id, result)
+    return result
 
 
 # WebSocket stub for streaming monitoring events

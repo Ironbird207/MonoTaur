@@ -11,6 +11,7 @@ class InMemoryStore:
         self.devices: Dict[UUID, schemas.Device] = {}
         self.layouts: Dict[UUID, schemas.Layout] = {}
         self.links: Dict[UUID, schemas.Link] = {}
+        self.checks: Dict[UUID, schemas.Check] = {}
 
     # Devices
     def list_devices(self) -> List[schemas.Device]:
@@ -80,3 +81,32 @@ class InMemoryStore:
 
     def delete_link(self, link_id: UUID) -> None:
         self.links.pop(link_id, None)
+
+    # Checks
+    def list_checks(self) -> List[schemas.Check]:
+        return list(self.checks.values())
+
+    def create_check(self, payload: schemas.CheckCreate) -> schemas.Check:
+        check = schemas.Check(**payload.model_dump())
+        self.checks[check.id] = check
+        return check
+
+    def get_check(self, check_id: UUID) -> schemas.Check:
+        return self.checks[check_id]
+
+    def update_check(self, check_id: UUID, payload: schemas.CheckUpdate) -> schemas.Check:
+        check = self.checks[check_id]
+        update_data = payload.model_dump(exclude_none=True)
+        for field, value in update_data.items():
+            setattr(check, field, value)
+        self.checks[check_id] = check
+        return check
+
+    def delete_check(self, check_id: UUID) -> None:
+        self.checks.pop(check_id, None)
+
+    def record_check_result(self, check_id: UUID, result: schemas.CheckResult) -> schemas.Check:
+        check = self.checks[check_id]
+        check.last_result = result
+        self.checks[check_id] = check
+        return check

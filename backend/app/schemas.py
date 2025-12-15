@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID, uuid4
 
@@ -74,3 +75,36 @@ class LinkUpdate(BaseModel):
 
 class Link(LinkBase):
     id: UUID = Field(default_factory=uuid4)
+
+
+class CheckResult(BaseModel):
+    status: str = Field(description="ok, warn, crit, or down")
+    latency_ms: Optional[float] = Field(default=None, description="round trip time in milliseconds")
+    message: Optional[str] = None
+    checked_at: datetime
+
+
+class CheckBase(BaseModel):
+    device_id: UUID
+    target: str = Field(description="host or IP to poll")
+    type: str = Field(default="icmp", description="icmp or other check type")
+    interval_s: int = Field(default=60, ge=1, description="polling cadence in seconds")
+    timeout_ms: int = Field(default=1000, ge=100, le=10000, description="timeout for the check")
+    params: Optional[dict] = Field(default=None, description="extra parameters for the check type")
+
+
+class CheckCreate(CheckBase):
+    pass
+
+
+class CheckUpdate(BaseModel):
+    target: Optional[str] = None
+    type: Optional[str] = None
+    interval_s: Optional[int] = Field(default=None, ge=1)
+    timeout_ms: Optional[int] = Field(default=None, ge=100, le=10000)
+    params: Optional[dict] = None
+
+
+class Check(CheckBase):
+    id: UUID = Field(default_factory=uuid4)
+    last_result: Optional[CheckResult] = Field(default=None, description="latest poll outcome")

@@ -1,12 +1,13 @@
 # MonoTaur Backend (FastAPI prototype)
 
-This directory contains a lightweight FastAPI application that sketches the APIs described in the project README and architecture notes. It uses an in-memory store so you can quickly exercise device, layout, and link CRUD flows without a database.
+This directory contains a lightweight FastAPI application that sketches the APIs described in the project README and architecture notes. It uses an in-memory store so you can quickly exercise device, layout, link, and monitoring check flows without a database.
 
 ## Features
-- REST endpoints for devices, layouts, and links
+- REST endpoints for devices, layouts, links, and monitoring checks
 - CORS enabled for local frontend experiments
 - WebSocket stub that emits a welcome payload and periodic heartbeats
-- Basic pytest coverage for the health check and CRUD happy path
+- A simple ICMP check executor that shells out to `ping` to validate reachability
+- Basic pytest coverage for the health check, CRUD, and check execution happy paths
 
 ## Running locally
 1. Install dependencies:
@@ -16,6 +17,12 @@ This directory contains a lightweight FastAPI application that sketches the APIs
 2. Start the server:
    ```bash
    uvicorn backend.app.main:app --reload
+   ```
+3. (Optional) Define a check and run it once:
+   ```bash
+   http POST :8000/devices name=loopback ip_address=127.0.0.1 type=host
+   http POST :8000/checks device_id=<device-id> target=127.0.0.1 type=icmp interval_s=5 timeout_ms=1000
+   http POST :8000/checks/<check-id>/run
    ```
 3. Explore the interactive docs at http://localhost:8000/docs
 

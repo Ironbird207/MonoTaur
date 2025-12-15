@@ -57,7 +57,8 @@ MonoTaur aims to provide a map-centric network monitoring experience similar to 
 
 ## Next Steps
 - Choose the map library (Leaflet vs MapLibre) and finalize UI component library.
-- Expand the prototype backend in `/backend` beyond the current in-memory CRUD scaffold for devices, layouts, and links.
+- Expand the prototype backend in `/backend` beyond the current in-memory CRUD scaffold for devices, layouts, and links. A first
+  ICMP check executor and `/checks` endpoints now exist to test reachability from the API.
 - Define database schema for devices, checks, links, and poll results.
 - Implement ICMP/SNMP pollers with a pluggable check abstraction.
 - Add sample topology data and fixtures for rapid UI testing.

@@ -10,7 +10,7 @@ This document outlines how MonoTaur can deliver a map-centric network monitoring
 - **Uploads & Backgrounds**: File upload to store floor-plan/rack images; toggle to switch to OSM tiles.
 
 ## Backend
-- **API Layer**: FastAPI serving REST endpoints for devices, checks, links, and map layouts. WebSocket endpoint for streaming monitoring results and alerts.
+- **API Layer**: FastAPI serving REST endpoints for devices, checks, links, and map layouts. WebSocket endpoint for streaming monitoring results and alerts. The prototype exposes `/checks/{id}/run` to execute an ICMP probe on demand.
 - **Persistence**: PostgreSQL for inventory data (devices, checks, layouts, links). Migrations handled by Alembic.
 - **Task Processing**: Celery or RQ workers executing scheduled polls. The scheduler enqueues ICMP/SNMP/HTTP checks at configurable intervals.
 - **Monitoring Checks**:
