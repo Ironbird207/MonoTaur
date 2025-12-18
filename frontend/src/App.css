@@ -1,0 +1,13 @@
+#root {
+  min-height: 100vh;
+  background: #0b1224;
+}
+
+.map-shell {
+  height: 520px;
+  width: 100%;
+}
+
+.leaflet-container {
+  background: radial-gradient(circle at 20% 20%, #0f1933 0%, #0b1224 60%, #090f1f 100%);
+}
